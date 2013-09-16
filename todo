@@ -1,0 +1,39 @@
+Make Assets
+	- Cinema scene base  --- place holder
+	- Cinema seats  ---done
+	- obstacles
+	- popcorn
+	- School Children
+	- Normal People
+	- Holly
+	- (me?)
+	- film sound tracks
+
+Code
+	- draw the base scene
+	- draw holly (and maybe me)
+	- add seats and obstacles
+	- collision detection
+	- add cinema goers + schoolchildren
+	- have schoolchildren look for us and throw popcorn
+
+
+
+
+gameplay:
+
+	-intro (outside cinema): 
+		Holly, "ugh, schoolchildren"
+		*school children turn and give evil stare*
+		*fade to black*
+
+	-game
+		*children and normals go and find their seats*
+		*lights go out, screen goes up and theme tune begins to play*
+		*we must get to seats within timelimit and without being spotted by children*
+		*if spotted, children throw popcorn and we get buried*
+		*if successful draw relevent film boilerplate and display stats*
+
+		*Hazards attract children*
+
+		*bonuses such as temporary invisibility, temporary silence, speed*
