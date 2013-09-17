@@ -1,3 +1,18 @@
+var keysDown = {};
+
+addEventListener("keydown", function (e) {
+		keysDown[e.keyCode] = true;
+	}, false);
+
+	addEventListener("keyup", function (e) {
+		delete keysDown[e.keyCode];
+	}, false);
+
+
+var collidables = [];
+
+
+
 var bgReady = false;
 var canvas;
 var context;
@@ -94,6 +109,8 @@ var setUp = function()
 
 }
 
+
+
 function Position(){
 	var x = 0;
 	var y = 0;
@@ -155,15 +172,20 @@ function Actor(newSpeed, newSize){
 	
 	var drawable
 
+	this.getPosition = function()
+	{
+		return position;
+	};
+
 	this.setPosition = function(newX,newY)
 	{
 		position.setPosition(newX,newY);
-	}
+	};
 
 	this.move = function (newX, newY)
 	{
-		position.setPosition(position.getX() - (newX * speed), position.getY() - (newY * speed));
-	}
+		position.setPosition(position.getX() + (newX * speed), position.getY() - (newY * speed));
+	};
 
 	this.setDrawable = function(newDrawable)
 	{
@@ -181,12 +203,25 @@ function Actor(newSpeed, newSize){
 		return size;
 	};
 
-	this.isCollidingWith = function(actor)
+	this.checkCollisions = function()
 	{
-		//get distance between this and the actor
-		//check if it's less than the average size
-		//if it is return true
-		//else false
+		for (var collidable in collidables)
+		{
+			if (collidable != 0 && collidable != this)
+			{
+				var x = position.getX() - collidable.position.getX();
+				var y = position.getY() - collidable.getPosition().getY();
+
+				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+
+				alert("wtf");
+
+				if (d < ((size + collidable.getSize())/2))
+				{
+					alert("bang");
+				}
+			}
+		}
 	};
 
 
@@ -194,7 +229,9 @@ function Actor(newSpeed, newSize){
 
 function Holly () {
 
-	var keysDown = {};
+	
+
+
 
 	var actor = new Actor(1, 10);
 	actor.setDrawable((function(){
@@ -203,7 +240,16 @@ function Holly () {
 		return drawable;
 	})() )
 
+
+
 	actor.setPosition(100,100);
+
+	collidables.push(actor);
+
+	this.getPosition = function()
+	{
+		return actor.getPosition();
+	}
 
 	this.draw = function(){
 		actor.draw();
@@ -211,26 +257,27 @@ function Holly () {
 
 	this.update = function()
 	{
-		if (40 in keysDown)
+
+		actor.checkCollisions();
+
+		if (40 in keysDown || 83 in keysDown) // down
 		{
 			actor.move(0,-1);
 		}
 
-		if (38 in keysDown)
+		if (38 in keysDown || 87 in keysDown) //up
 		{
 			actor.move(0,1);
 		}
+
+		if (37 in keysDown || 65 in keysDown) { // Player holding left
+			actor.move(-1,0);
+		}
+		if (39 in keysDown || 68 in keysDown) { // Player holding right
+			actor.move(1,0);
+		}
 	};
 
-	
-
-	addEventListener("keydown", function (e) {
-		keysDown[e.keyCode] = true;
-	}, false);
-
-	addEventListener("keyup", function (e) {
-		delete keysDown[e.keyCode];
-	}, false);
 	
 }
 
@@ -240,7 +287,7 @@ var render = function () {
     context.fillRect (0,0,canvas.width,canvas.height);
 
 
-	if (false)//seatImageReady)
+	if (seatImageReady)
 	{
 		var image;
 		for (var ii = 0; ii < map.length; ii++) {
