@@ -1,5 +1,5 @@
 var keysDown = {};
-
+var deltat
 var idProvider = 0;
 
 addEventListener("keydown", function (e) {
@@ -44,8 +44,8 @@ var hollyImageReady = false;
 var hollyImage;
 
 var mapWidth = 29;
-var mapHeight = 14;
-var mapString =  "w/d/qqqqqqqqqqqqqqqqqqqqq/d/w w///xsssssssstttssssssssx///w w///xsssssssstttssssssssx///w wcccxsssssssstttssssssssxcccw wcccxsssssssstttssssssssxcccw wccc.sssssssstttssssssss.cccw wcccccccccccccccccccccccccccw wccc.-------.ccc.-------.cccw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wcccccccccccccccccccccccccccw qqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
+var mapHeight = 15;
+var mapString =  "w/d/qqqqqqqqqqqqqqqqqqqqq/d/w w///xsssssssstttssssssssx///w w///xsssssssstttssssssssx///w wcccxsssssssstttssssssssxcccw wcccxsssssssstttssssssssxcccw wcccxsssssssstttssssssssxcccw wccc.sssssssstttssssssss.cccw wcccccccccccccccccccccccccccw wccc.-------.ccc.-------.cccw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wcccccccccccccccccccccccccccw qqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
 
 //wcccxcccccccccccccccccccxcccw
 var map 
@@ -56,7 +56,7 @@ var setUp = function()
 	canvas = document.createElement("canvas");
 	context = canvas.getContext("2d");
 	canvas.width = mapWidth*32;
-	canvas.height = mapHeight*40;
+	canvas.height = mapHeight*32;
 
 	document.body.appendChild(canvas);
 
@@ -172,6 +172,8 @@ function Actor(newSpeed, newSize){
 	var size = newSize;
 	var position = new Position();
 
+	this.collisions = [];
+
 	this.id = idProvider;
 	idProvider++;
 	
@@ -189,7 +191,8 @@ function Actor(newSpeed, newSize){
 
 	this.move = function (newX, newY)
 	{
-		position.setPosition(position.getX() + (newX * speed), position.getY() - (newY * speed));
+		
+		position.setPosition(position.getX() + (newX * (delta/1000) * speed), position.getY() - (newY * (delta/1000) * speed));
 	};
 
 	this.setDrawable = function(newDrawable)
@@ -210,11 +213,12 @@ function Actor(newSpeed, newSize){
 
 	this.checkCollisions = function()
 	{
+		this.collisions = [];
 		var collidable;
 		for (var ii = 0; ii < collidables.length; ii++)
 		{
 			collidable = collidables[ii];
-			 
+
 			if (collidable != this)
 			{
 				var x = position.getX() - collidable.getPosition().getX();
@@ -226,7 +230,7 @@ function Actor(newSpeed, newSize){
 
 				if (d < ((size + collidable.getSize())/2))
 				{
-					alert("bang");
+					this.collisions.push(collidable);
 				}
 			}
 		}
@@ -241,7 +245,7 @@ function Holly () {
 
 
 
-	var actor = new Actor(1, 10);
+	var actor = new Actor(124, 32);
 	actor.setDrawable((function(){
 		var drawable = new Drawable();
 		drawable.initialise("resources/images/holly.png");
@@ -268,21 +272,90 @@ function Holly () {
 
 		actor.checkCollisions();
 
-		if (40 in keysDown || 83 in keysDown) // down
+		blockLeft = false;
+		blockRight = false;
+		blockUp = false;
+		blockDown = false;
+
+		for (var i = 0; i < actor.collisions.length; i++) {
+			var otherPosition = actor.collisions[i].getPosition();
+
+			if (otherPosition.getX() < actor.getPosition().getX())
+			{
+				blockLeft = true;
+
+			}
+
+			if (otherPosition.getX() > actor.getPosition().getX())
+			{
+				blockRight = true;
+			}
+
+			if (otherPosition.getY() > actor.getPosition().getY())
+			{
+				blockDown = true;
+
+			}
+
+			if (otherPosition.getY() < actor.getPosition().getY())
+			{
+				blockUp = true;
+			}
+
+		};
+
+		if ((40 in keysDown || 83 in keysDown)) // down
 		{
-			actor.move(0,-1);
+			if (blockDown)
+			{
+				if ( blockLeft &! blockRight ){
+					actor.move(1,0);
+				} else if ( blockRight &! blockLeft) {
+					actor.move(-1,0);
+				}
+			} else {
+				actor.move(0,-1);
+			}
 		}
 
-		if (38 in keysDown || 87 in keysDown) //up
+		if ((38 in keysDown || 87 in keysDown)) //up
 		{
-			actor.move(0,1);
+			if (blockUp)
+			{
+				if ( blockLeft &! blockRight ){
+					actor.move(1,0);
+				} else if ( blockRight &! blockLeft) {
+					actor.move(-1,0);
+				}
+			} else {
+				actor.move(0,1);
+			}
 		}
 
-		if (37 in keysDown || 65 in keysDown) { // Player holding left
-			actor.move(-1,0);
+		if ((37 in keysDown || 65 in keysDown)) { // Player holding left
+			if (blockLeft)
+			{
+				if ( blockUp &! blockDown ){
+					actor.move(0,-1);
+				} else if ( blockDown &! blockUp) {
+					actor.move(0,1);
+				}
+			} else {
+				actor.move(-1,0);
+			}
 		}
-		if (39 in keysDown || 68 in keysDown) { // Player holding right
-			actor.move(1,0);
+
+		if ((39 in keysDown || 68 in keysDown)) { // Player holding right
+			if (blockRight)
+			{
+				if ( blockUp &! blockDown ){
+					actor.move(0,-1);
+				} else if ( blockDown &! blockUp) {
+					actor.move(0,1);
+				}
+			} else {
+				actor.move(1,0);
+			}
 		}
 	};
 
@@ -343,6 +416,8 @@ var render = function () {
 
 		holly.draw();
 		bleh.draw();
+		blah.draw();
+		bluh.draw();
 
 	
 
@@ -351,32 +426,32 @@ var render = function () {
 
 var drawStep = function ( x, y)
 {
-	context.drawImage(stepImage, y*32, x*40);
+	context.drawImage(stepImage, y*32, x*32);
 }
 
 var drawWall = function ( x, y)
 {
-	context.drawImage(wallImage, y*32, x*40);
+	context.drawImage(wallImage, y*32, x*32);
 }
 
 var drawEdgeWall = function ( x, y)
 {
-	context.drawImage(edgeWallImage, y*32, x*40);
+	context.drawImage(edgeWallImage, y*32, x*32);
 }
 
 var drawSeat = function ( x, y)
 {
-	context.drawImage(seatImage, y*32,(x*40)-15);
+	context.drawImage(seatImage, y*32,(x*32)-15);
 }
 
 var drawCorridoor = function ( x, y)
 {
-	context.drawImage(corridoorImage, y*32,x*40);
+	context.drawImage(corridoorImage, y*32,x*32);
 }
 
 var drawDoor = function ( x, y)
 {
-	context.drawImage(doorImage, (y-1)*32, x*40);
+	context.drawImage(doorImage, (y-1)*32, x*32);
 }
 
 
@@ -394,9 +469,27 @@ bleh.setDrawable((function(){
 	})() );
 collidables.push(bleh);
 
+var blah = new Actor(0, 10);
+blah.setPosition(400,250);
+blah.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/holly.png");
+		return drawable;
+	})() );
+collidables.push(blah);
+
+var bluh = new Actor(0, 10);
+bluh.setPosition(300,300);
+bluh.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/holly.png");
+		return drawable;
+	})() );
+collidables.push(bluh);
+
 var main = function () {
 	var now = Date.now();
-	var delta = now - then;
+	delta = now - then;
 
 	//update(delta / 1000);
 	holly.update();
