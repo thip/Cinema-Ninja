@@ -47,19 +47,19 @@ var hollyImage;
 var mapWidth = 29;
 var mapHeight = 17;
 var mapString =  "w/d/wwwwwwwwwwwwwwwwwwwww/d/w \
-wcccxsssssssstttssssssssxcccw \
-wcccxsssssssstttssssssssxcccw \
-wcccxsssssssstttssssssssxcccw \
-wcccxsssssssstttssssssssxcccw \
-wcccxsssssssstttssssssssxcccw \
+wccc|sssssssstttssssssss|cccw \
+wccc|sssssssstttssssssss|cccw \
+wccc|sssssssstttssssssss|cccw \
+wccc|sssssssstttssssssss|cccw \
+wccc|sssssssstttssssssss|cccw \
 wccc.sssssssstttssssssss.cccw \
 wcccccccccccccccccccccccccccw \
 wcccccccccccccccccccccccccccw \
-wccc.-------.ccc.-------.cccw \
-wtttxsssssssstttssssssssxtttw \
-wtttxsssssssstttssssssssxtttw \
-wtttxsssssssstttssssssssxtttw \
-wtttxsssssssstttssssssssxtttw \
+wccc[------->ccc<-------]cccw \
+wttt|sssssssstttssssssss|tttw \
+wttt|sssssssstttssssssss|tttw \
+wttt|sssssssstttssssssss|tttw \
+wttt.sssssssstttssssssss.tttw \
 wcccccccccccccccccccccccccccw \
 wcccccccccccccccccccccccccccw \
 wwwwwwwwwwwwwwwwwwwwwwwwwwwww";
@@ -432,7 +432,7 @@ var setupMap = function () {
 						drawables.push(corridoor);
 		   	 		 	break;
 		   	 		case 's':
-		   	 			//drawStep(ii,jj);
+		   	 		
 		   	 			
 
 		   	 			var seat = new Actor(0, 0);
@@ -444,10 +444,10 @@ var setupMap = function () {
 							})() );
 
 						var seatColliderL = new Actor (0,1);
-						seatColliderL.setPosition((jj*32)-8,(ii*32)-16);
+						seatColliderL.setPosition((jj*32)-8,(ii*32)-14);
 
 						var seatColliderR = new Actor (0,1);
-						seatColliderR.setPosition((jj*32)+8,(ii*32)-16);
+						seatColliderR.setPosition((jj*32)+8,(ii*32)-14);
 
 						collidables.push(seatColliderL);
 						collidables.push(seatColliderR);
@@ -465,9 +465,162 @@ var setupMap = function () {
 							})() );
 						drawables.push(step);
 		   	 			break;
-		   	 		case 'd':
-		   	 			//drawDoor(ii,jj);
+		   	 		
+		   	 		case '|':
+		   	 			var rail = new Actor(0, 0);
+						rail.setPosition(jj*32,ii*32);
+						rail.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/railTB.png");
+								return drawable;
+							})() );
+
+						var railColliderT = new Actor (0,1);
+						railColliderT.setPosition((jj*32),(ii*32)-12);
+
+						var railColliderB = new Actor (0,1);
+						railColliderB.setPosition((jj*32),(ii*32)+12);
+
+						collidables.push(railColliderT);
+						collidables.push(railColliderB);
+
+						drawables.push(rail);
 		   	 			break;
+
+		   	 		case '.':
+		   	 			var rail = new Actor(0, 0);
+						rail.setPosition(jj*32,ii*32);
+						rail.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/railB.png");
+								return drawable;
+							})() );
+
+						var railColliderT = new Actor (0,1);
+						railColliderT.setPosition((jj*32),(ii*32)-12);
+
+						var railColliderB = new Actor (0,1);
+						railColliderB.setPosition((jj*32),(ii*32)+12);
+
+						collidables.push(railColliderT);
+						collidables.push(railColliderB);
+
+						drawables.push(rail);
+		   	 			break;
+
+		   	 		case '-':
+		   	 			var rail = new Actor(0, 0);
+						rail.setPosition(jj*32,ii*32);
+						rail.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/railLR.png");
+								return drawable;
+							})() );
+
+						var railColliderT = new Actor (0,1);
+						railColliderT.setPosition((jj*32)-12,(ii*32));
+
+						var railColliderB = new Actor (0,1);
+						railColliderB.setPosition((jj*32)+12,(ii*32));
+
+						collidables.push(railColliderT);
+						collidables.push(railColliderB);
+
+						drawables.push(rail);
+		   	 			break;
+
+		   	 		case '[':
+		   	 			var rail = new Actor(0, 0);
+						rail.setPosition(jj*32,ii*32);
+						rail.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/railBR.png");
+								return drawable;
+							})() );
+
+						var railColliderL = new Actor (0,1);
+						railColliderL.setPosition((jj*32),(ii*32)+12);
+
+						var railColliderB = new Actor (0,1);
+						railColliderB.setPosition((jj*32)+12,(ii*32));
+
+						var railColliderC = new Actor (0,1);
+						railColliderC.setPosition((jj*32),(ii*32));
+
+						collidables.push(railColliderL);
+						collidables.push(railColliderB);
+						collidables.push(railColliderC);
+
+						drawables.push(rail);
+		   	 			break;
+
+		   	 		case ']':
+		   	 			var rail = new Actor(0, 0);
+						rail.setPosition(jj*32,ii*32);
+						rail.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/railBL.png");
+								return drawable;
+							})() );
+
+						var railColliderL = new Actor (0,1);
+						railColliderL.setPosition((jj*32),(ii*32)+12);
+
+						var railColliderB = new Actor (0,1);
+						railColliderB.setPosition((jj*32)-12,(ii*32));
+
+						var railColliderC = new Actor (0,1);
+						railColliderC.setPosition((jj*32),(ii*32));
+
+						collidables.push(railColliderL);
+						collidables.push(railColliderB);
+						collidables.push(railColliderC);
+
+						drawables.push(rail);
+		   	 			break;
+
+		   	 		case '<':
+		   	 			var rail = new Actor(0, 0);
+						rail.setPosition(jj*32,ii*32);
+						rail.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/railL.png");
+								return drawable;
+							})() );
+
+						var railColliderT = new Actor (0,1);
+						railColliderT.setPosition((jj*32)-12,(ii*32));
+
+						var railColliderB = new Actor (0,1);
+						railColliderB.setPosition((jj*32)+12,(ii*32));
+
+						collidables.push(railColliderT);
+						collidables.push(railColliderB);
+
+						drawables.push(rail);
+		   	 			break;
+
+		   	 		case '>':
+		   	 			var rail = new Actor(0, 0);
+						rail.setPosition(jj*32,ii*32);
+						rail.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/railR.png");
+								return drawable;
+							})() );
+
+						var railColliderT = new Actor (0,1);
+						railColliderT.setPosition((jj*32)-12,(ii*32));
+
+						var railColliderB = new Actor (0,1);
+						railColliderB.setPosition((jj*32)+12,(ii*32));
+
+						collidables.push(railColliderT);
+						collidables.push(railColliderB);
+
+						drawables.push(rail);
+		   	 			break;
+		   	 		
 		   	 		default:
 		   	 			break;
 
