@@ -44,8 +44,24 @@ var hollyImageReady = false;
 var hollyImage;
 
 var mapWidth = 29;
-var mapHeight = 15;
-var mapString =  "w/d/qqqqqqqqqqqqqqqqqqqqq/d/w w///xsssssssstttssssssssx///w w///xsssssssstttssssssssx///w wcccxsssssssstttssssssssxcccw wcccxsssssssstttssssssssxcccw wcccxsssssssstttssssssssxcccw wccc.sssssssstttssssssss.cccw wcccccccccccccccccccccccccccw wccc.-------.ccc.-------.cccw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wtttxsssssssstttssssssssxtttw wcccccccccccccccccccccccccccw qqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
+var mapHeight = 17;
+var mapString =  "w/d/wwwwwwwwwwwwwwwwwwwww/d/w \
+wcccxsssssssstttssssssssxcccw \
+wcccxsssssssstttssssssssxcccw \
+wcccxsssssssstttssssssssxcccw \
+wcccxsssssssstttssssssssxcccw \
+wcccxsssssssstttssssssssxcccw \
+wccc.sssssssstttssssssss.cccw \
+wcccccccccccccccccccccccccccw \
+wcccccccccccccccccccccccccccw \
+wccc.-------.ccc.-------.cccw \
+wtttxsssssssstttssssssssxtttw \
+wtttxsssssssstttssssssssxtttw \
+wtttxsssssssstttssssssssxtttw \
+wtttxsssssssstttssssssssxtttw \
+wcccccccccccccccccccccccccccw \
+wcccccccccccccccccccccccccccw \
+wwwwwwwwwwwwwwwwwwwwwwwwwwwww";
 
 //wcccxcccccccccccccccccccxcccw
 var map 
@@ -441,7 +457,7 @@ var drawEdgeWall = function ( x, y)
 
 var drawSeat = function ( x, y)
 {
-	context.drawImage(seatImage, y*32,(x*32)-15);
+	context.drawImage(seatImage, y*32,(x*32));
 }
 
 var drawCorridoor = function ( x, y)
