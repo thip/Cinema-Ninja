@@ -1,5 +1,7 @@
 var keysDown = {};
 
+var idProvider = 0;
+
 addEventListener("keydown", function (e) {
 		keysDown[e.keyCode] = true;
 	}, false);
@@ -18,7 +20,7 @@ var canvas;
 var context;
 var bgImage;
 
-var holly = new Holly();
+
 
 var seatImageReady = false;
 var seatImage;
@@ -169,6 +171,9 @@ function Actor(newSpeed, newSize){
 	var speed = newSpeed;
 	var size = newSize;
 	var position = new Position();
+
+	this.id = idProvider;
+	idProvider++;
 	
 	var drawable
 
@@ -205,16 +210,19 @@ function Actor(newSpeed, newSize){
 
 	this.checkCollisions = function()
 	{
-		for (var collidable in collidables)
+		var collidable;
+		for (var ii = 0; ii < collidables.length; ii++)
 		{
-			if (collidable != 0 && collidable != this)
+			collidable = collidables[ii];
+			 
+			if (collidable != this)
 			{
-				var x = position.getX() - collidable.position.getX();
+				var x = position.getX() - collidable.getPosition().getX();
 				var y = position.getY() - collidable.getPosition().getY();
 
 				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
 
-				alert("wtf");
+				
 
 				if (d < ((size + collidable.getSize())/2))
 				{
@@ -331,12 +339,11 @@ var render = function () {
 	
 	}
 
-	if (hollyImageReady)
-	{
+	
 
 		holly.draw();
+		bleh.draw();
 
-	}
 	
 
 	
@@ -375,7 +382,17 @@ var drawDoor = function ( x, y)
 
 
 setUp();
-render();
+
+var holly = new Holly();
+
+var bleh = new Actor(0, 10);
+bleh.setPosition(250,250);
+bleh.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/holly.png");
+		return drawable;
+	})() );
+collidables.push(bleh);
 
 var main = function () {
 	var now = Date.now();
