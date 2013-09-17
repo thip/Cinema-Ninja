@@ -12,6 +12,7 @@ addEventListener("keydown", function (e) {
 
 
 var collidables = [];
+var drawables = [];
 
 
 
@@ -105,7 +106,7 @@ var setUp = function()
 	};
 	wallImage.src = "resources/images/Wall.png";
 
-	edgeWallImage = new Image();
+	/*edgeWallImage = new Image();
 	edgeWallImage.onload = function () {
 		edgeWallImageReady = true;
 	};
@@ -115,13 +116,15 @@ var setUp = function()
 	doorImage.onload = function () {
 		doorImageReady = true;
 	};
-	doorImage.src = "resources/images/door.png";
+	doorImage.src = "resources/images/door.png";*/
 
 	hollyImage = new Image();
 	hollyImage.onload = function () {
 		hollyImageReady = true;
 	};
 	hollyImage.src = "resources/images/holly.png";
+
+	setupMap();
 
 
 
@@ -261,7 +264,7 @@ function Holly () {
 
 
 
-	var actor = new Actor(124, 32);
+	var actor = new Actor(124, 30);
 	actor.setDrawable((function(){
 		var drawable = new Drawable();
 		drawable.initialise("resources/images/holly.png");
@@ -273,6 +276,7 @@ function Holly () {
 	actor.setPosition(100,100);
 
 	collidables.push(actor);
+	drawables.push(actor);
 
 	this.getPosition = function()
 	{
@@ -383,38 +387,86 @@ var render = function () {
 	context.fillStyle = "rgb(0,0,0)";
     context.fillRect (0,0,canvas.width,canvas.height);
 
+	
 
-	if (seatImageReady)
-	{
-		var image;
-		for (var ii = 0; ii < map.length; ii++) {
+	for (var i = 0; i < drawables.length; i++) {
+		drawables[i].draw();
+	};
+
+}
+
+var setupMap = function () {
+
+	
+
+	for (var ii = 0; ii < map.length; ii++) {
 			//alert(map[ii]);
 		   	for (var jj = 0; jj < map[ii].length; jj++) {
 		   	 	
 		   		//alert(map[ii].charAt(jj));
 
 		   	 	switch(map[ii].charAt(jj)){
-		   	 		case 'q':
-		   	 			drawEdgeWall(ii,jj);
-		   	 			
-		   	 			break;
+		   	 		
 		   	 		case 'w':
-		   	 			drawWall(ii,jj);
+		   	 			//drawWall(ii,jj);
+
+		   	 			var wall = new Actor(0, 34);
+						wall.setPosition(jj*32,ii*32);
+						wall.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/Wall.png");
+								return drawable;
+							})() );
+						collidables.push(wall);
+						drawables.push(wall);
 		   	 			
 		   	 			break;
 		   	 		case 'c':
-		   	 		 	drawCorridoor(ii,jj);
+		   	 		 	var corridoor = new Actor(0, 34);
+						corridoor.setPosition(jj*32,ii*32);
+						corridoor.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/corridoor.png");
+								return drawable;
+							})() );
+						drawables.push(corridoor);
 		   	 		 	break;
 		   	 		case 's':
-		   	 			drawStep(ii,jj);
-		   	 			drawSeat(ii,jj);
+		   	 			//drawStep(ii,jj);
+		   	 			
+
+		   	 			var seat = new Actor(0, 0);
+						seat.setPosition(jj*32,ii*32);
+						seat.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/Seat.png");
+								return drawable;
+							})() );
+
+						var seatColliderL = new Actor (0,1);
+						seatColliderL.setPosition((jj*32)-8,(ii*32)-16);
+
+						var seatColliderR = new Actor (0,1);
+						seatColliderR.setPosition((jj*32)+8,(ii*32)-16);
+
+						collidables.push(seatColliderL);
+						collidables.push(seatColliderR);
+
+						drawables.push(seat);
 		   	 		
 		   	 			break;
 		   	 		case 't':
-		   	 			drawStep(ii,jj);
+		   	 			var step = new Actor(0, 34);
+						step.setPosition(jj*32,ii*32);
+						step.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/step.png");
+								return drawable;
+							})() );
+						drawables.push(step);
 		   	 			break;
 		   	 		case 'd':
-		   	 			drawDoor(ii,jj);
+		   	 			//drawDoor(ii,jj);
 		   	 			break;
 		   	 		default:
 		   	 			break;
@@ -425,19 +477,6 @@ var render = function () {
 		   	 	
 		   	};
 		};	
-	
-	}
-
-	
-
-		holly.draw();
-		bleh.draw();
-		blah.draw();
-		bluh.draw();
-
-	
-
-	
 }
 
 var drawStep = function ( x, y)
@@ -476,32 +515,9 @@ setUp();
 
 var holly = new Holly();
 
-var bleh = new Actor(0, 10);
-bleh.setPosition(250,250);
-bleh.setDrawable((function(){
-		var drawable = new Drawable();
-		drawable.initialise("resources/images/holly.png");
-		return drawable;
-	})() );
-collidables.push(bleh);
 
-var blah = new Actor(0, 10);
-blah.setPosition(400,250);
-blah.setDrawable((function(){
-		var drawable = new Drawable();
-		drawable.initialise("resources/images/holly.png");
-		return drawable;
-	})() );
-collidables.push(blah);
 
-var bluh = new Actor(0, 10);
-bluh.setPosition(300,300);
-bluh.setDrawable((function(){
-		var drawable = new Drawable();
-		drawable.initialise("resources/images/holly.png");
-		return drawable;
-	})() );
-collidables.push(bluh);
+
 
 var main = function () {
 	var now = Date.now();
