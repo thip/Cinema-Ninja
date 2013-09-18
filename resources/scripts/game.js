@@ -216,6 +216,11 @@ function Actor(newSpeed, newSize){
 		drawable.drawRotated(position, angle);
 	};
 
+	this.getAngle = function()
+	{
+		return angle;
+	}
+
 	this.setAngle = function(newAngle)
 	{
 		angle = newAngle;
@@ -276,6 +281,10 @@ function Punter () {
 
 function Kid () {
 
+	var lookTarget = Math.random()*Math.PI*2;
+	var idle = true;
+	var angularV = 0.01;
+
 	var actor = new Actor(124, 30);
 	actor.setDrawable((function(){
 		var drawable = new Drawable();
@@ -298,10 +307,28 @@ function Kid () {
 				var y = actor.getPosition().getY() - holly.getPosition().getY();
 
 				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
-
 				
+				//if Holly has collided with me lose
+				if (d < 22) { lost = true ;}
 
-				if (d < 26) { lost = true ;}
+
+				//look around randomly
+				if ( idle )
+				{
+					var ting = (actor.getAngle() - lookTarget); 
+					
+					if ( ting > 0.1)
+					{
+						actor.setAngle((actor.getAngle() - (angularV ) )%(Math.PI*2));
+					} else if ( ting < -0.1) {
+						actor.setAngle((actor.getAngle() + (angularV ) )%(Math.PI*2));
+					} else {
+						lookTarget = (Math.random()*(Math.PI*2)-Math.PI)%(Math.PI*2);
+						
+					}
+				}
+
+
 	}
 
 }
@@ -555,7 +582,7 @@ var setupMap = function () {
 		   	 			break;
 		   	 		
 		   	 		case '|':
-		   	 			var rail = new Actor(0, 32);
+		   	 			var rail = new Actor(0, 33);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
