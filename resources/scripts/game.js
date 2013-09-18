@@ -632,35 +632,6 @@ var setupMap = function () {
 		};	
 }
 
-var drawStep = function ( x, y)
-{
-	context.drawImage(stepImage, y*32, x*32);
-}
-
-var drawWall = function ( x, y)
-{
-	context.drawImage(wallImage, y*32, x*32);
-}
-
-var drawEdgeWall = function ( x, y)
-{
-	context.drawImage(edgeWallImage, y*32, x*32);
-}
-
-var drawSeat = function ( x, y)
-{
-	context.drawImage(seatImage, y*32,(x*32));
-}
-
-var drawCorridoor = function ( x, y)
-{
-	context.drawImage(corridoorImage, y*32,x*32);
-}
-
-var drawDoor = function ( x, y)
-{
-	context.drawImage(doorImage, (y-1)*32, x*32);
-}
 
 
 
