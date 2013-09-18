@@ -167,8 +167,19 @@ function Drawable()
 
 	this.draw = function(position)
 	{
+		this.drawRotated(position, 0);
+	}
+
+	this.drawRotated = function(position, radians)
+	{
 		if (ready){
-			context.drawImage(image, position.getX(), position.getY());
+			context.save();
+			context.translate(position.getX() + (image.width/2), position.getY() + (image.height/2));
+			context.rotate(radians);
+			context.drawImage(image, -(image.width/2),-(image.height/2));
+
+
+			context.restore();
 		}	
 	}
 
