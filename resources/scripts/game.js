@@ -1,6 +1,8 @@
 var canvas;
 var context;
 
+var refreshIntervalId;
+
 var keysDown = {};
 var delta
 
@@ -41,6 +43,7 @@ var PUNTERS = 90;
 var seats = []
 var collidables = [];
 var drawables = [];
+var updateables = [];
 var kids = [];
 var punters = [];
 
@@ -267,7 +270,7 @@ function Punter () {
 	actor.setPosition(mySeat.getX(), mySeat.getY());
 
 	drawables.push(actor);
-	//kids.push(this);
+
 
 }
 
@@ -286,6 +289,20 @@ function Kid () {
 
 	drawables.push(actor);
 	kids.push(this);
+
+	updateables.push(this);
+
+	this.update = function()
+	{
+		var x = actor.getPosition().getX() - holly.getPosition().getX();
+				var y = actor.getPosition().getY() - holly.getPosition().getY();
+
+				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+
+				
+
+				if (d < 26) { lost = true ;}
+	}
 
 }
 
@@ -316,6 +333,7 @@ function Holly () {
 	collidables.push(actor);
 	drawables.push(pickme);
 	drawables.push(actor);
+	updateables.push(this);
 
 	this.getPosition = function()
 	{
@@ -670,18 +688,34 @@ var main = function () {
 	var now = Date.now();
 	delta = now - then;
 
-	//update(delta / 1000);
-	holly.update();
+	for (var i = 0; i < updateables.length; i++) {
+		updateables[i].update();
+	};
 
 	if (!( won || lost)){
 		render();
+	} else {
+		if (won)
+		{
+			alert("you got to your seat without incident :)");
+		}
+
+		if (lost)
+		{
+			alert("you got assaulted by a school child :( you never made it to your seat.");
+		}
+
+		clearInterval(refreshIntervalId);
+
 	}
 	
+
+
 
 	then = now;
 };
 
 var then = Date.now();
-setInterval(main, 1); 
+refreshIntervalId = setInterval(main, 1); 
 
 
