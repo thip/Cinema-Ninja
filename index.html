@@ -1,12 +1,66 @@
 <!DOCTYPE html>
 
 <html>
+	<head>
+		<script type="text/javascript">
+		function redirect(){window.location.href = "surprise.html"}
 
-  <head>
-  </head>
+			function isValid(){
+				var password = document.getElementById('password').value;
+				if (password.toLowerCase() == "david rocks")
+				{
+					alert("Yes he does.")
+					redirect();
+				} else {
+					alert('Wrong Password')
+				}
+			}
+		</script>
 
-  <body>
-    <script src=./resources/scripts/game.js></script>
-  </body>
+		<style type="text/css">
 
-</hmtl>
+        #outer
+        {
+                display:block;
+                height:100%;
+                width:100%;
+                position:absolute;
+        }
+
+        #inner
+        {
+                display:block;
+                position:relative;
+                width:100%;
+                top:50%;
+                white-space:nowrap;
+                margin-top:-2em;
+                margin-left:auto;
+                margin-right:auto;
+                text-align:center;
+                font-size: 2em;
+                font-family: Monaco, Consolas, "Lucida Console", monospace;
+
+		 }
+
+
+		</style>
+		<title> Hi! </title>
+		</head>
+		<body>
+		<div id="outer">
+		<div id="inner">
+
+
+	<body>
+		<form name="PasswordField" action="">
+			<p><input type="text" id="password" name="password"></p>
+			<p><input type="button" value="Submit." onclick="isValid();"></p>
+		</form>
+	</body>
+
+	</div>
+</div>
+
+
+</html>

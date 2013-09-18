@@ -1,93 +1,49 @@
+var canvas;
+var context;
+
 var keysDown = {};
-var deltat
-var idProvider = 0;
+var delta
+
+var won = false;
+var lost = false;
 
 var mouseX = 0;
 var mouseY = 0;
 
+var map;
+var mapWidth = 31;
+var mapHeight = 20;
+var mapString =  
+"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww \
+wccc|csssssssscccssssssssc|cccw \
+wccc|tsssssssstttsssssssst|cccw \
+wccc|tsssssssstttsssssssst|cccw \
+wccc|tsssssssstttsssssssst|cccw \
+wccc|tsssssssstttsssssssst|cccw \
+wccc.tsssssssstttsssssssst.cccw \
+wcccccccccccccccccccccccccccccw \
+wcccccccccccccccccccccccccccccw \
+wccc[---------------------]cccw \
+wttt|csssssssssssssssssssc|tttw \
+wttt|csssssssssssssssssssc|tttw \
+wttt|csssssssssssssssssssc|tttw \
+wttt.csssssssssssssssssssc.tttw \
+wcccccccccccccccccccccccccccccw \
+wcccccccccccccccccccccccccccccw \
+wcccccccccccccccccccccccccccccw \
+wcccccccccccccccccccccccccccccw \
+wcccccccccccccccccccccccccccccw \
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww";
 
-function getMousePos(canvas, evt) 
-{
-    var rect = canvas.getBoundingClientRect();
-    return {
-      	x: evt.clientX - rect.left,
-      	y: evt.clientY - rect.top
-    };
-}
+var KIDS = 10;
+var PUNTERS = 90;
 
-addEventListener('mousemove', function(evt) {
-	mouseX = getMousePos(canvas, evt).x;
-	mouseY = getMousePos(canvas, evt).y;
-
-}, false);
-
-
-
-
-addEventListener("keydown", function (e) {
-		keysDown[e.keyCode] = true;
-	}, false);
-
-	addEventListener("keyup", function (e) {
-		delete keysDown[e.keyCode];
-	}, false);
-
-
+var seats = []
 var collidables = [];
 var drawables = [];
+var kids = [];
+var punters = [];
 
-
-
-var bgReady = false;
-var canvas;
-var context;
-var bgImage;
-
-
-
-var seatImageReady = false;
-var seatImage;
-
-var stepImageReady = false;
-var stepImage;
-
-var corridoorImageReady = false;
-var corridoorImage;
-
-var wallImageReady = false;
-var wallImage;
-
-var edgeWallImageReady = false;
-var edgeWallImage;
-
-var doorImageReady = false;
-var doorImage;
-
-var hollyImageReady = false;
-var hollyImage;
-
-var mapWidth = 29;
-var mapHeight = 17;
-var mapString =  "w/d/wwwwwwwwwwwwwwwwwwwww/d/w \
-wccc|sssssssstttssssssss|cccw \
-wccc|sssssssstttssssssss|cccw \
-wccc|sssssssstttssssssss|cccw \
-wccc|sssssssstttssssssss|cccw \
-wccc|sssssssstttssssssss|cccw \
-wccc.sssssssstttssssssss.cccw \
-wcccccccccccccccccccccccccccw \
-wcccccccccccccccccccccccccccw \
-wccc[------->ccc<-------]cccw \
-wttt|sssssssstttssssssss|tttw \
-wttt|sssssssstttssssssss|tttw \
-wttt|sssssssstttssssssss|tttw \
-wttt.sssssssstttssssssss.tttw \
-wcccccccccccccccccccccccccccw \
-wcccccccccccccccccccccccccccw \
-wwwwwwwwwwwwwwwwwwwwwwwwwwwww";
-
-//wcccxcccccccccccccccccccxcccw
-var map 
 
 var setUp = function()
 {
@@ -99,58 +55,51 @@ var setUp = function()
 
 	document.body.appendChild(canvas);
 
-	// Background image
-	
+	//add event listeners
+	addEventListener('mousemove', function(evt) {
+			mouseX = getMousePos(canvas, evt).x;
+			mouseY = getMousePos(canvas, evt).y;
+		}, false);
+
+	addEventListener("keydown", function (e) {
+			keysDown[e.keyCode] = true;
+		}, false);
+
+	addEventListener("keyup", function (e) {
+			delete keysDown[e.keyCode];
+		}, false);
+
+
+    // put the map together	
 	map = new Array();
 	map = mapString.split(' ');
-
-	seatImage = new Image();
-	seatImage.onload = function () {
-		seatImageReady = true;
-	};
-	seatImage.src = "resources/images/Seat.png";
-
-	stepImage = new Image();
-	stepImage.onload = function () {
-		stepImageReady = true;
-	};
-	stepImage.src = "resources/images/Step.png";
-
-	corridoorImage = new Image();
-	corridoorImage.onload = function () {
-		corridoorImageReady = true;
-	};
-	corridoorImage.src = "resources/images/corridoor.png";
-
-	wallImage = new Image();
-	wallImage.onload = function () {
-		wallImageReady = true;
-	};
-	wallImage.src = "resources/images/Wall.png";
-
-	/*edgeWallImage = new Image();
-	edgeWallImage.onload = function () {
-		edgeWallImageReady = true;
-	};
-	edgeWallImage.src = "resources/images/edgewall.png";
-
-	doorImage = new Image();
-	doorImage.onload = function () {
-		doorImageReady = true;
-	};
-	doorImage.src = "resources/images/door.png";*/
-
-	hollyImage = new Image();
-	hollyImage.onload = function () {
-		hollyImageReady = true;
-	};
-	hollyImage.src = "resources/images/holly.png";
-
 	setupMap();
 
+	for (var i = 0; i < KIDS; i++) 
+	{
+		var kid = new Kid();
+		
+	}
 
+	for (var i = 0; i < PUNTERS; i++) 
+	{
+		var kid = new Punter();
+		
+	}
 
 }
+
+
+function getMousePos(canvas, evt) 
+{
+    var rect = canvas.getBoundingClientRect();
+    return {
+      	x: evt.clientX - rect.left,
+      	y: evt.clientY - rect.top
+    };
+}
+
+
 
 
 
@@ -171,6 +120,14 @@ function Position(){
 		x = newX;
 		y = newY;
 	}
+}
+
+function getASeat()
+{
+	var randomnumber=Math.floor(Math.random()*seats.length);
+	var seatPos = seats[randomnumber];
+	seats.splice(randomnumber, 1);
+	return seatPos;
 }
 
 function Drawable()
@@ -227,8 +184,6 @@ function Actor(newSpeed, newSize){
 
 	this.collisions = [];
 
-	this.id = idProvider;
-	idProvider++;
 	
 	var drawable
 
@@ -297,11 +252,44 @@ function Actor(newSpeed, newSize){
 
 }
 
+
+function Punter () {
+
+	var actor = new Actor(124, 30);
+	actor.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/punter.png");
+		return drawable;
+	})() )
+
+	var mySeat = getASeat();
+
+	actor.setPosition(mySeat.getX(), mySeat.getY());
+
+	drawables.push(actor);
+	//kids.push(this);
+
+}
+
+function Kid () {
+
+	var actor = new Actor(124, 30);
+	actor.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/kid.png");
+		return drawable;
+	})() )
+
+	var mySeat = getASeat();
+
+	actor.setPosition(mySeat.getX(), mySeat.getY());
+
+	drawables.push(actor);
+	kids.push(this);
+
+}
+
 function Holly () {
-
-	
-
-
 
 	var actor = new Actor(124, 30);
 	actor.setDrawable((function(){
@@ -310,11 +298,23 @@ function Holly () {
 		return drawable;
 	})() )
 
+	var mySeat = getASeat();
 
+	var pickme = new Actor(124, 30);
+	pickme.setPosition(mySeat.getX(), mySeat.getY());
+	pickme.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/pickme.png");
+		return drawable;
+	})() )
+
+	context.fillStyle = "yello";
+    context.fillRect (mySeat.getX(),mySeat.getY , 10,10);
 
 	actor.setPosition(100,100);
 
 	collidables.push(actor);
+	drawables.push(pickme);
 	drawables.push(actor);
 
 	this.getPosition = function()
@@ -417,6 +417,20 @@ function Holly () {
 			}
 		}
 
+
+		//check to see if im at seat
+
+				var x = actor.getPosition().getX() - mySeat.getX();
+				var y = actor.getPosition().getY() - mySeat.getY();
+
+				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+
+				
+
+				if (d < 5) { won = true ;}
+
+
+		//face mouse
 		var targetX  = mouseX - actor.getPosition().getX() - 16
 		,   targetY  = mouseY - actor.getPosition().getY() - 16
 		,   rotation = Math.atan2(targetY, targetX);
@@ -497,7 +511,18 @@ var setupMap = function () {
 						collidables.push(seatColliderL);
 						collidables.push(seatColliderR);
 
+						var corridoor = new Actor(0, 34);
+						corridoor.setPosition(jj*32,ii*32);
+						corridoor.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/corridoor.png");
+								return drawable;
+							})() );
+						drawables.push(corridoor);
+
 						drawables.push(seat);
+
+						seats.push(seat.getPosition());
 		   	 		
 		   	 			break;
 		   	 		case 't':
@@ -512,7 +537,7 @@ var setupMap = function () {
 		   	 			break;
 		   	 		
 		   	 		case '|':
-		   	 			var rail = new Actor(0, 0);
+		   	 			var rail = new Actor(0, 32);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
@@ -520,20 +545,14 @@ var setupMap = function () {
 								return drawable;
 							})() );
 
-						var railColliderT = new Actor (0,1);
-						railColliderT.setPosition((jj*32),(ii*32)-12);
 
-						var railColliderB = new Actor (0,1);
-						railColliderB.setPosition((jj*32),(ii*32)+12);
-
-						collidables.push(railColliderT);
-						collidables.push(railColliderB);
+						collidables.push(rail);
 
 						drawables.push(rail);
 		   	 			break;
 
 		   	 		case '.':
-		   	 			var rail = new Actor(0, 0);
+		   	 			var rail = new Actor(0, 32);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
@@ -541,20 +560,13 @@ var setupMap = function () {
 								return drawable;
 							})() );
 
-						var railColliderT = new Actor (0,1);
-						railColliderT.setPosition((jj*32),(ii*32)-12);
-
-						var railColliderB = new Actor (0,1);
-						railColliderB.setPosition((jj*32),(ii*32)+12);
-
-						collidables.push(railColliderT);
-						collidables.push(railColliderB);
+						collidables.push(rail);
 
 						drawables.push(rail);
 		   	 			break;
 
 		   	 		case '-':
-		   	 			var rail = new Actor(0, 0);
+		   	 			var rail = new Actor(0, 32);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
@@ -562,20 +574,14 @@ var setupMap = function () {
 								return drawable;
 							})() );
 
-						var railColliderT = new Actor (0,1);
-						railColliderT.setPosition((jj*32)-12,(ii*32));
 
-						var railColliderB = new Actor (0,1);
-						railColliderB.setPosition((jj*32)+12,(ii*32));
-
-						collidables.push(railColliderT);
-						collidables.push(railColliderB);
+						collidables.push(rail);
 
 						drawables.push(rail);
 		   	 			break;
 
 		   	 		case '[':
-		   	 			var rail = new Actor(0, 0);
+		   	 		var rail = new Actor(0, 32);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
@@ -583,24 +589,14 @@ var setupMap = function () {
 								return drawable;
 							})() );
 
-						var railColliderL = new Actor (0,1);
-						railColliderL.setPosition((jj*32),(ii*32)+12);
 
-						var railColliderB = new Actor (0,1);
-						railColliderB.setPosition((jj*32)+12,(ii*32));
-
-						var railColliderC = new Actor (0,1);
-						railColliderC.setPosition((jj*32),(ii*32));
-
-						collidables.push(railColliderL);
-						collidables.push(railColliderB);
-						collidables.push(railColliderC);
+						collidables.push(rail);
 
 						drawables.push(rail);
 		   	 			break;
 
 		   	 		case ']':
-		   	 			var rail = new Actor(0, 0);
+		   	 		var rail = new Actor(0, 32);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
@@ -608,24 +604,13 @@ var setupMap = function () {
 								return drawable;
 							})() );
 
-						var railColliderL = new Actor (0,1);
-						railColliderL.setPosition((jj*32),(ii*32)+12);
-
-						var railColliderB = new Actor (0,1);
-						railColliderB.setPosition((jj*32)-12,(ii*32));
-
-						var railColliderC = new Actor (0,1);
-						railColliderC.setPosition((jj*32),(ii*32));
-
-						collidables.push(railColliderL);
-						collidables.push(railColliderB);
-						collidables.push(railColliderC);
+						collidables.push(rail);
 
 						drawables.push(rail);
 		   	 			break;
 
 		   	 		case '<':
-		   	 			var rail = new Actor(0, 0);
+		   	 			var rail = new Actor(0, 32);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
@@ -633,20 +618,18 @@ var setupMap = function () {
 								return drawable;
 							})() );
 
-						var railColliderT = new Actor (0,1);
-						railColliderT.setPosition((jj*32)-12,(ii*32));
+						
 
-						var railColliderB = new Actor (0,1);
-						railColliderB.setPosition((jj*32)+12,(ii*32));
+						
 
-						collidables.push(railColliderT);
-						collidables.push(railColliderB);
+						collidables.push(rail);
+					
 
 						drawables.push(rail);
 		   	 			break;
 
 		   	 		case '>':
-		   	 			var rail = new Actor(0, 0);
+		   	 			var rail = new Actor(0, 32);
 						rail.setPosition(jj*32,ii*32);
 						rail.setDrawable((function(){
 								var drawable = new Drawable();
@@ -654,14 +637,9 @@ var setupMap = function () {
 								return drawable;
 							})() );
 
-						var railColliderT = new Actor (0,1);
-						railColliderT.setPosition((jj*32)-12,(ii*32));
+					
 
-						var railColliderB = new Actor (0,1);
-						railColliderB.setPosition((jj*32)+12,(ii*32));
-
-						collidables.push(railColliderT);
-						collidables.push(railColliderB);
+						collidables.push(rail);
 
 						drawables.push(rail);
 		   	 			break;
@@ -694,7 +672,11 @@ var main = function () {
 
 	//update(delta / 1000);
 	holly.update();
-	render();
+
+	if (!( won || lost)){
+		render();
+	}
+	
 
 	then = now;
 };
