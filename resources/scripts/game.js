@@ -2,6 +2,28 @@ var keysDown = {};
 var deltat
 var idProvider = 0;
 
+var mouseX = 0;
+var mouseY = 0;
+
+
+function getMousePos(canvas, evt) 
+{
+    var rect = canvas.getBoundingClientRect();
+    return {
+      	x: evt.clientX - rect.left,
+      	y: evt.clientY - rect.top
+    };
+}
+
+addEventListener('mousemove', function(evt) {
+	mouseX = getMousePos(canvas, evt).x;
+	mouseY = getMousePos(canvas, evt).y;
+
+}, false);
+
+
+
+
 addEventListener("keydown", function (e) {
 		keysDown[e.keyCode] = true;
 	}, false);
@@ -200,6 +222,7 @@ function Scenery()
 function Actor(newSpeed, newSize){
 	var speed = newSpeed;
 	var size = newSize;
+	var angle = 0;
 	var position = new Position();
 
 	this.collisions = [];
@@ -232,7 +255,12 @@ function Actor(newSpeed, newSize){
 
 	this.draw = function()
 	{
-		drawable.draw(position);
+		drawable.drawRotated(position, angle);
+	};
+
+	this.setAngle = function(newAngle)
+	{
+		angle = newAngle;
 	};
 
 
@@ -388,6 +416,12 @@ function Holly () {
 				actor.move(1,0);
 			}
 		}
+
+		var targetX  = mouseX - actor.getPosition().getX() - 16
+		,   targetY  = mouseY - actor.getPosition().getY() - 16
+		,   rotation = Math.atan2(targetY, targetX);
+
+		actor.setAngle(rotation - Math.PI/2 );
 	};
 
 	
