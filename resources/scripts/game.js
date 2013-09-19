@@ -33,11 +33,11 @@ wttt.csssssssssssssssssssc.tttw \
 wcccccccccccccccccccccccccccccw \
 wcccccccccccccccccccccccccccccw \
 wcccccccccccccccccccccccccccccw \
-wcccccccccccccccccccccccccccccw \
-wcccccccccccccccccccccccccccccw \
+wccccc###################cccccw \
+wccccc###################cccccw \
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww";
 
-var KIDS = 10;
+var KIDS = 20;
 var PUNTERS = 90;
 
 var seats = []
@@ -46,6 +46,8 @@ var drawables = [];
 var updateables = [];
 var kids = [];
 var punters = [];
+
+var viewDistance = 110;
 
 
 var setUp = function()
@@ -78,15 +80,16 @@ var setUp = function()
 	map = mapString.split(' ');
 	setupMap();
 
-	for (var i = 0; i < KIDS; i++) 
-	{
-		var kid = new Kid();
-		
-	}
 
 	for (var i = 0; i < PUNTERS; i++) 
 	{
-		var kid = new Punter();
+		new Punter();
+		
+	}
+
+	for (var i = 0; i < KIDS; i++) 
+	{
+		new Kid();
 		
 	}
 
@@ -156,7 +159,7 @@ function Drawable()
 	{
 		if (ready){
 			context.save();
-			context.translate(position.getX() + (image.width/2), position.getY() + (image.height/2));
+			context.translate(position.getX() + (image.width/2), position.getY() + 16);//+ (image.height/2));
 			context.rotate(radians);
 			context.drawImage(image, -(image.width/2),-(image.height/2));
 
@@ -295,21 +298,35 @@ function Kid () {
 	var mySeat = getASeat();
 
 	actor.setPosition(mySeat.getX(), mySeat.getY());
+	actor.setAngle((Math.random()*(Math.PI*2)-(Math.PI)%(Math.PI*2)));
 
 	drawables.push(actor);
 	kids.push(this);
 
 	updateables.push(this);
 
+	this.faceHolly = function()
+	{
+		var x = holly.getPosition().getX() - actor.getPosition().getX()  ;
+		var y = holly.getPosition().getY() - actor.getPosition().getY() ;
+
+		actor.setAngle(Math.atan2(y, x) - Math.PI/2);
+	}
+
 	this.update = function()
 	{
-		var x = actor.getPosition().getX() - holly.getPosition().getX();
-				var y = actor.getPosition().getY() - holly.getPosition().getY();
+				var x = holly.getPosition().getX() - actor.getPosition().getX()  ;
+				var y = holly.getPosition().getY() - actor.getPosition().getY() ;
 
 				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
 				
 				//if Holly has collided with me lose
 				if (d < 22) { lost = true ;}
+
+				//if I can see Holly, lose (for now)				
+				var rotdif = (actor.getAngle()   - ( Math.atan2(y, x) - Math.PI/2)  );
+
+				if (( (rotdif < 0.2) && (rotdif > - 0.2) ) && (d < viewDistance )){ lost = true; }
 
 
 				//look around randomly
@@ -355,7 +372,7 @@ function Holly () {
 	context.fillStyle = "yello";
     context.fillRect (mySeat.getX(),mySeat.getY , 10,10);
 
-	actor.setPosition(100,100);
+	actor.setPosition(36,36);
 
 	collidables.push(actor);
 	drawables.push(pickme);
@@ -729,6 +746,12 @@ var main = function () {
 
 		if (lost)
 		{
+			for (var i = 0; i < kids.length; i++) {
+				kids[i].faceHolly();
+			};
+
+			render();
+
 			alert("you got assaulted by a school child :( you never made it to your seat.");
 		}
 
