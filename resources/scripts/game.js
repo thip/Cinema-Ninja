@@ -1,13 +1,21 @@
 var canvas;
 var context;
 
+var shh = new Audio("resources/sound/shh.wav");
+var roar = new Audio("resources/sound/roar.wav");
+var win = new Audio("resources/sound/win.wav");
+var jaws = new Audio("resources/sound/jaws.mp3");
+
 var refreshIntervalId;
 
 var keysDown = {};
 var delta
 
+var gameState = 0;
+
 var won = false;
-var lost = false;
+var noise = false;
+var spotted = false;
 
 var mouseX = 0;
 var mouseY = 0;
@@ -17,7 +25,7 @@ var mapWidth = 31;
 var mapHeight = 20;
 var mapString =  
 "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww \
-wccc|csssssssscccssssssssc|cccw \
+wlcr|csssssssscccssssssssc|lcrw \
 wccc|tsssssssstttsssssssst|cccw \
 wccc|tsssssssstttsssssssst|cccw \
 wccc|tsssssssstttsssssssst|cccw \
@@ -39,6 +47,7 @@ wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww";
 
 var KIDS = 20;
 var PUNTERS = 90;
+var LITTER = 90;
 
 var seats = []
 var collidables = [];
@@ -46,6 +55,8 @@ var drawables = [];
 var updateables = [];
 var kids = [];
 var punters = [];
+var walkables = [];
+var litter = [];
 
 var viewDistance = 110;
 
@@ -93,6 +104,12 @@ var setUp = function()
 		
 	}
 
+	for (var i = 0; i < LITTER; i++) 
+	{
+		new Litter();
+		
+	}
+
 }
 
 
@@ -134,6 +151,17 @@ function getASeat()
 	var seatPos = seats[randomnumber];
 	seats.splice(randomnumber, 1);
 	return seatPos;
+}
+
+function getAWalkable()
+{
+	var randomnumber=Math.floor(Math.random()*walkables.length);
+	var walkablePos = walkables[randomnumber];
+	walkables.splice(randomnumber, 1);
+
+
+
+	return walkablePos;
 }
 
 function Drawable()
@@ -282,6 +310,54 @@ function Punter () {
 
 }
 
+function Litter () {
+
+	var triggered = false;
+
+	var snd = new Audio("resources/sound/crunch.wav")
+
+	var actor = new Actor(124, 30);
+	actor.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/trash.png");
+		return drawable;
+	})() )
+
+	actor.setAngle(Math.random()*Math.PI*2);
+
+	var myPos = getAWalkable();
+
+
+
+	actor.setPosition(myPos.getX()+(Math.random()*24)-12,
+					 	myPos.getY()+(Math.random()*24)-12);
+
+	drawables.push(actor);
+	updateables.push(this);
+
+	this.update = function()
+	{
+		var x = holly.getPosition().getX() - actor.getPosition().getX()  ;
+				var y = holly.getPosition().getY() - actor.getPosition().getY() ;
+
+				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+
+		if ( (d < 10) && !triggered )
+		{
+			triggered = true;
+			snd.play();
+			holly.hurt();
+		}
+
+		if ( ( d > 10) && triggered )
+		{
+			triggered = false;
+		}
+
+	}
+
+}
+
 function Kid () {
 
 	var lookTarget = Math.random()*Math.PI*2;
@@ -321,12 +397,19 @@ function Kid () {
 				var d = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
 				
 				//if Holly has collided with me lose
-				if (d < 22) { lost = true ;}
+				if (d < 22) { 
+
+
+					spotted = true ;
+					
+		
+
+				}
 
 				//if I can see Holly, lose (for now)				
 				var rotdif = (actor.getAngle()   - ( Math.atan2(y, x) - Math.PI/2)  );
 
-				if (( (rotdif < 0.2) && (rotdif > - 0.2) ) && (d < viewDistance )){ lost = true; }
+				if (( (rotdif < 0.2) && (rotdif > - 0.2) ) && (d < viewDistance )){ spotted = true; }
 
 
 				//look around randomly
@@ -350,7 +433,24 @@ function Kid () {
 
 }
 
+function Projector ()
+{
+	var actor = new Actor(0,0);
+	actor.setDrawable((function(){
+		var drawable = new Drawable();
+		drawable.initialise("resources/images/projecter.png");
+		return drawable;
+	})() )
+
+	actor.setPosition(192, canvas.height/2 - 28);
+
+	drawables.push(actor);
+
+}
+
 function Holly () {
+
+	var health = 100;
 
 	var actor = new Actor(124, 30);
 	actor.setDrawable((function(){
@@ -369,8 +469,7 @@ function Holly () {
 		return drawable;
 	})() )
 
-	context.fillStyle = "yello";
-    context.fillRect (mySeat.getX(),mySeat.getY , 10,10);
+
 
 	actor.setPosition(36,36);
 
@@ -378,6 +477,17 @@ function Holly () {
 	drawables.push(pickme);
 	drawables.push(actor);
 	updateables.push(this);
+
+	this.getHealth = function()
+	{
+		return health;
+	}
+
+	this.hurt = function()
+	{
+		health = health - 20;
+		//alert("shhh");
+	}
 
 	this.getPosition = function()
 	{
@@ -390,6 +500,11 @@ function Holly () {
 
 	this.update = function()
 	{
+
+		if (health <= 0)
+		{
+			noise = true;
+		}
 
 		actor.checkCollisions();
 
@@ -513,6 +628,9 @@ var render = function () {
 	for (var i = 0; i < drawables.length; i++) {
 		drawables[i].draw();
 	};
+			context.fillStyle = "rgb(255,255,255)";
+			context.font = 'bold 20pt Arial';
+		context.fillText("Punter annoyance Level: " + (100- holly.getHealth() ) + "%", 5, 25);
 
 }
 
@@ -542,6 +660,22 @@ var setupMap = function () {
 						drawables.push(wall);
 		   	 			
 		   	 			break;
+
+		   	 		case '#':
+		   	 			//drawWall(ii,jj);
+
+		   	 			var wall = new Actor(0, 34);
+						wall.setPosition(jj*32,ii*32);
+						wall.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/stage.png");
+								return drawable;
+							})() );
+						collidables.push(wall);
+						drawables.push(wall);
+		   	 			
+		   	 			break;
+
 		   	 		case 'c':
 		   	 		 	var corridoor = new Actor(0, 34);
 						corridoor.setPosition(jj*32,ii*32);
@@ -551,7 +685,53 @@ var setupMap = function () {
 								return drawable;
 							})() );
 						drawables.push(corridoor);
+						walkables.push(corridoor.getPosition());
 		   	 		 	break;
+
+		   	 		case 'l':
+		   	 		 	var corridoor = new Actor(0, 34);
+						corridoor.setPosition(jj*32,ii*32);
+						corridoor.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/corridoor.png");
+								return drawable;
+							})() );
+
+						var door = new Actor(0, 34);
+						door.setPosition(jj*32,ii*32);
+						door.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/doorL.png");
+								return drawable;
+							})() );
+
+						
+						drawables.push(corridoor);
+						drawables.push(door);
+		   	 		 	break;
+
+		   	 		case 'r':
+		   	 		 	var corridoor = new Actor(0, 34);
+						corridoor.setPosition(jj*32,ii*32);
+						corridoor.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/corridoor.png");
+								return drawable;
+							})() );
+
+						var door = new Actor(0, 34);
+						door.setPosition(jj*32,ii*32);
+						door.setDrawable((function(){
+								var drawable = new Drawable();
+								drawable.initialise("resources/images/doorR.png");
+								return drawable;
+							})() );
+
+						
+						drawables.push(corridoor);
+						drawables.push(door);
+		   	 		 	break;
+
 		   	 		case 's':
 		   	 		
 		   	 			
@@ -585,6 +765,7 @@ var setupMap = function () {
 						drawables.push(seat);
 
 						seats.push(seat.getPosition());
+
 		   	 		
 		   	 			break;
 		   	 		case 't':
@@ -596,6 +777,7 @@ var setupMap = function () {
 								return drawable;
 							})() );
 						drawables.push(step);
+						walkables.push(step.getPosition());
 		   	 			break;
 		   	 		
 		   	 		case '|':
@@ -723,6 +905,7 @@ var setupMap = function () {
 setUp();
 
 var holly = new Holly();
+var projector = new Projector();
 
 
 
@@ -732,33 +915,84 @@ var main = function () {
 	var now = Date.now();
 	delta = now - then;
 
-	for (var i = 0; i < updateables.length; i++) {
-		updateables[i].update();
-	};
-
-	if (!( won || lost)){
-		render();
-	} else {
-		if (won)
+	switch(gameState)
+	{
+		case 0:
 		{
-			alert("you got to your seat without incident :)");
+
+
+
+			context.fillStyle = "rgb(0,0,0)";
+			context.font = 'normal 15pt Lucida Console';
+			context.fillText("While buying tickets at the cinema you insult a group of school children. As you enter the screen (late, you", 5, 25);
+			context.fillText("were buying snacks) you realise \n that the school children are already here. Try and get to your seat without ", 5, 45);
+		    context.fillText("being  noticed by the angry children or disturbing the other film-goers.", 5, 65);
+
+		    var drawable = new Drawable();
+		    var pos = new Position();
+		    pos.setPosition(0, 80);
+		   	drawable.initialise("resources/images/pickme.png");
+		   	drawable.draw(pos);
+		    context.fillText("<- this marks your seat", 40, 105);
+		    context.fillText("press space to play! (refresh to reset)", 5 , 145);
+
+		    context.fillText("(I put this together pretty quickly, sorry it's a bit rough!)", 5 , 205);
+
+			break;
 		}
-
-		if (lost)
+		case 1:
 		{
-			for (var i = 0; i < kids.length; i++) {
-				kids[i].faceHolly();
+			jaws.currentTime = 60;
+			jaws.play();
+
+			for (var i = 0; i < updateables.length; i++) {
+				updateables[i].update();
 			};
 
-			render();
+			if (!( won || noise || spotted)){
+				render();
 
-			alert("you got assaulted by a school child :( you never made it to your seat.");
+			} else {
+				if (won)
+				{
+					win.play();
+					alert("you got to your seat without incident :)");
+				}
+
+				if (spotted)
+				{
+					for (var i = 0; i < kids.length; i++) {
+						kids[i].faceHolly();
+					};
+
+
+					render();
+					roar.play();
+
+					alert("you got assaulted by a school child :( you never made it to your seat.");
+
+				}	
+
+				if (noise)
+				{
+					render();
+					shh.play();
+					alert("You made too much noise");
+				}
+
+				clearInterval(refreshIntervalId);
+
+			}
+			break;
 		}
 
-		clearInterval(refreshIntervalId);
-
 	}
+
 	
+				if ( 32 in keysDown)
+			{
+				gameState = 1;
+			}
 
 
 
