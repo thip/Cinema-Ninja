@@ -1,4 +1,4 @@
 potential-spice
 ===============
 
-Game for Holly
+Really quick game hacked together for Holly.
