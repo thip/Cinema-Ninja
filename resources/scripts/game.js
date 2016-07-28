@@ -5,6 +5,7 @@ var shh = new Audio("resources/sound/shh.wav");
 var roar = new Audio("resources/sound/roar.wav");
 var win = new Audio("resources/sound/win.wav");
 var jaws = new Audio("resources/sound/jaws.mp3");
+var jawsStarted = false;
 
 var refreshIntervalId;
 
@@ -942,8 +943,11 @@ var main = function () {
 		}
 		case 1:
 		{
-			jaws.currentTime = 60;
-			jaws.play();
+			if(!jawsStarted){
+				jaws.currentTime = 60;
+				jaws.play();
+				jawsStarted = true;
+			}
 
 			for (var i = 0; i < updateables.length; i++) {
 				updateables[i].update();
