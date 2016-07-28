@@ -773,7 +773,7 @@ var setupMap = function () {
 						step.setPosition(jj*32,ii*32);
 						step.setDrawable((function(){
 								var drawable = new Drawable();
-								drawable.initialise("resources/images/step.png");
+								drawable.initialise("resources/images/Step.png");
 								return drawable;
 							})() );
 						drawables.push(step);
